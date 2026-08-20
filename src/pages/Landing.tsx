@@ -13,7 +13,7 @@ export default function Landing() {
           TicTacToe
         </div>
         <button
-          onClick={() => navigate("/auth")}
+          onClick={() => navigate("/play")}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer"
         >
           Let's play
@@ -45,7 +45,7 @@ export default function Landing() {
           </p>
 
           <button
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/play")}
             className="group inline-flex items-center gap-3 px-8 py-3.5 bg-foreground text-background text-sm font-medium rounded-sm hover:bg-foreground/90 transition-all duration-200 cursor-pointer"
           >
             Start playing
