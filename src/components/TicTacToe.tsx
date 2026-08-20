@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Cpu, Users } from "lucide-react";
 
 type Player = "X" | "O";
 type Cell = Player | null;
 type Board = Cell[];
+type GameMode = "computer" | "two-player";
 
 const WINNING_LINES = [
   [0, 1, 2],
@@ -84,29 +85,34 @@ interface Scores {
 }
 
 export default function TicTacToe() {
+  const [mode, setMode] = useState<GameMode | null>(null);
   const [board, setBoard] = useState<Board>(Array(9).fill(null));
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+  const [currentPlayer, setCurrentPlayer] = useState<Player>("X");
   const [scores, setScores] = useState<Scores>({ X: 0, O: 0, draws: 0 });
   const [gameOver, setGameOver] = useState(false);
 
   const result = useMemo(() => checkWinner(board), [board]);
   const draw = useMemo(() => !result && isDraw(board), [board, result]);
 
+  const isPlayerTurn = currentPlayer === "X";
+  const isComputerThinking = mode === "computer" && !isPlayerTurn && !gameOver;
+
   const handleCellClick = useCallback(
     (index: number) => {
-      if (board[index] || gameOver || !isPlayerTurn) return;
+      if (board[index] || gameOver) return;
+      if (mode === "computer" && !isPlayerTurn) return;
 
       const newBoard = [...board];
-      newBoard[index] = "X";
+      newBoard[index] = currentPlayer;
       setBoard(newBoard);
-      setIsPlayerTurn(false);
+      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
     },
-    [board, gameOver, isPlayerTurn],
+    [board, gameOver, mode, currentPlayer, isPlayerTurn],
   );
 
   // Computer move
   useEffect(() => {
-    if (isPlayerTurn || gameOver || result || draw) return;
+    if (mode !== "computer" || isPlayerTurn || gameOver || result || draw) return;
 
     const timer = setTimeout(() => {
       const move = getBestMove([...board]);
@@ -114,12 +120,12 @@ export default function TicTacToe() {
         const newBoard = [...board];
         newBoard[move] = "O";
         setBoard(newBoard);
-        setIsPlayerTurn(true);
+        setCurrentPlayer("X");
       }
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [board, isPlayerTurn, gameOver, result, draw]);
+  }, [board, mode, isPlayerTurn, gameOver, result, draw]);
 
   // Check for end of game and update scores
   useEffect(() => {
@@ -137,7 +143,7 @@ export default function TicTacToe() {
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
-    setIsPlayerTurn(true);
+    setCurrentPlayer("X");
     setGameOver(false);
   };
 
@@ -146,13 +152,75 @@ export default function TicTacToe() {
     setScores({ X: 0, O: 0, draws: 0 });
   };
 
+  const changeMode = (newMode: GameMode) => {
+    setMode(newMode);
+    resetScores();
+  };
+
   const getStatusText = () => {
     if (result) {
-      return result.winner === "X" ? "You win! 🎉" : "Computer wins";
+      if (mode === "computer") {
+        return result.winner === "X" ? "You win! 🎉" : "Computer wins";
+      }
+      return `Player ${result.winner} wins! 🎉`;
     }
     if (draw) return "It's a draw";
-    return isPlayerTurn ? "Your turn — go for it!" : "Thinking…";
+    if (mode === "computer") {
+      return isPlayerTurn ? "Your turn — go for it!" : "Thinking…";
+    }
+    return `Player ${currentPlayer}'s turn`;
   };
+
+  // Mode selector screen
+  if (!mode) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col items-center gap-12"
+      >
+        <div className="text-center">
+          <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase mb-3">
+            Choose your game
+          </h2>
+          <p className="text-xs text-muted-foreground/60">
+            How would you like to play?
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => changeMode("computer")}
+            className="group flex flex-col items-center gap-4 px-10 py-8 border border-border/60 rounded-sm
+                       hover:border-foreground/30 hover:bg-accent transition-all duration-200 cursor-pointer"
+          >
+            <Cpu className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <div className="text-center">
+              <div className="text-sm font-medium">vs Computer</div>
+              <div className="text-[11px] text-muted-foreground/60 mt-1">
+                Challenge the AI
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => changeMode("two-player")}
+            className="group flex flex-col items-center gap-4 px-10 py-8 border border-border/60 rounded-sm
+                       hover:border-foreground/30 hover:bg-accent transition-all duration-200 cursor-pointer"
+          >
+            <Users className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <div className="text-center">
+              <div className="text-sm font-medium">2 Players</div>
+              <div className="text-[11px] text-muted-foreground/60 mt-1">
+                Play with a friend
+              </div>
+            </div>
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-10">
@@ -171,22 +239,21 @@ export default function TicTacToe() {
       <div className="grid grid-cols-3 gap-[3px] bg-border/60 p-[3px] rounded-sm">
         {board.map((cell, i) => {
           const isWinCell = result?.line.includes(i);
+          const canClick = !cell && !gameOver && (mode === "two-player" || isPlayerTurn);
           return (
             <motion.button
               key={i}
               onClick={() => handleCellClick(i)}
-              disabled={!!cell || gameOver || !isPlayerTurn}
+              disabled={!canClick}
               className={`
                 w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center
                 bg-background rounded-sm cursor-pointer
                 transition-colors duration-150
                 disabled:cursor-default
-                ${!cell && !gameOver && isPlayerTurn ? "hover:bg-accent" : ""}
+                ${canClick ? "hover:bg-accent" : ""}
                 ${isWinCell ? "bg-accent" : ""}
               `}
-              whileTap={
-                !cell && !gameOver && isPlayerTurn ? { scale: 0.95 } : {}
-              }
+              whileTap={canClick ? { scale: 0.95 } : {}}
             >
               <AnimatePresence mode="wait">
                 {cell && (
@@ -223,6 +290,13 @@ export default function TicTacToe() {
           New game
         </button>
         <button
+          onClick={() => setMode(null)}
+          className="text-xs text-muted-foreground/50 hover:text-muted-foreground 
+                     transition-colors duration-200 cursor-pointer"
+        >
+          Change mode
+        </button>
+        <button
           onClick={resetScores}
           className="text-xs text-muted-foreground/50 hover:text-muted-foreground 
                      transition-colors duration-200 cursor-pointer"
@@ -236,7 +310,7 @@ export default function TicTacToe() {
         <div>
           <div className="text-2xl font-light">{scores.X}</div>
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground/60 mt-1">
-            You
+            {mode === "computer" ? "You" : "Player X"}
           </div>
         </div>
         <div className="w-px h-8 bg-border" />
@@ -250,7 +324,7 @@ export default function TicTacToe() {
         <div>
           <div className="text-2xl font-light">{scores.O}</div>
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground/60 mt-1">
-            Computer
+            {mode === "computer" ? "Computer" : "Player O"}
           </div>
         </div>
       </div>
