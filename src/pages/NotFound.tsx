@@ -12,12 +12,12 @@ export default function NotFound() {
       className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-8"
     >
       <p className="text-6xl font-light mb-4">404</p>
-      <p className="text-sm text-muted-foreground mb-8">Page not found</p>
+      <p className="text-sm text-muted-foreground mb-8">Oops, this page doesn't exist</p>
       <button
         onClick={() => navigate("/")}
         className="text-xs uppercase tracking-widest text-muted-foreground/60 hover:text-foreground transition-colors duration-200 cursor-pointer"
       >
-        Return home
+        Back to home
       </button>
     </motion.div>
   );

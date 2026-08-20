@@ -19,10 +19,12 @@ export default function Dashboard() {
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto w-full">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-1">
-            Welcome{user?.name ? `, ${user.name}` : ""}
-          </p>
-          <h1 className="text-sm font-medium tracking-wide">Tic Tac Toe</h1>
+          <h1 className="text-sm font-semibold tracking-wide">TicTacToe</h1>
+          {user?.name && (
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">
+              Playing as {user.name}
+            </p>
+          )}
         </div>
         <Button
           type="button"

@@ -106,11 +106,11 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-8">
       <div className="mb-12 text-center">
-        <h1 className="text-sm font-medium tracking-wide uppercase mb-2">
-          Tic Tac Toe
+        <h1 className="text-lg font-semibold tracking-wide mb-2">
+          TicTacToe
         </h1>
-        <p className="text-xs text-muted-foreground/60 tracking-wide">
-          Sign in to play
+        <p className="text-xs text-muted-foreground tracking-wide">
+          Sign in to start playing
         </p>
       </div>
 
@@ -118,9 +118,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
         {step === "signIn" ? (
           <>
             <CardHeader className="text-center">
-              <CardTitle className="text-base font-normal">Welcome</CardTitle>
+              <CardTitle className="text-base font-normal">Welcome back</CardTitle>
               <CardDescription className="text-sm">
-                Enter your email to continue
+                Enter your email to jump right in
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleEmailSubmit}>
@@ -175,7 +175,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     disabled={isLoading}
                   >
                     <UserX className="mr-2 h-4 w-4" />
-                    Play as guest
+                    Play as a guest
                   </Button>
                 </div>
               </CardContent>
@@ -185,7 +185,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <>
             <CardHeader className="text-center">
               <CardTitle className="text-base font-normal">
-                Check your email
+                Check your inbox
               </CardTitle>
               <CardDescription className="text-sm">
                 We sent a code to {step.email}
@@ -222,7 +222,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground/60 text-center mt-4">
-                  Didn't receive a code?{" "}
+                  Didn't get a code?{" "}
                   <Button
                     variant="link"
                     className="p-0 h-auto cursor-pointer"
@@ -245,7 +245,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     </>
                   ) : (
                     <>
-                      Verify
+                      Let's go
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
@@ -257,7 +257,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   disabled={isLoading}
                   className="w-full cursor-pointer"
                 >
-                  Use different email
+                  Use a different email
                 </Button>
               </CardFooter>
             </form>
@@ -266,7 +266,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       </Card>
 
       <p className="mt-8 text-[10px] text-muted-foreground/40 tracking-wider uppercase">
-        Secured by freebuff.com
+        Powered by freebuff.com
       </p>
     </div>
   );

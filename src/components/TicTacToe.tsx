@@ -148,10 +148,10 @@ export default function TicTacToe() {
 
   const getStatusText = () => {
     if (result) {
-      return result.winner === "X" ? "You win" : "Computer wins";
+      return result.winner === "X" ? "You win! 🎉" : "Computer wins";
     }
-    if (draw) return "Draw";
-    return isPlayerTurn ? "Your turn" : "Thinking…";
+    if (draw) return "It's a draw";
+    return isPlayerTurn ? "Your turn — go for it!" : "Thinking…";
   };
 
   return (
